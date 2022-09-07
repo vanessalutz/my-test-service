@@ -1,0 +1,19 @@
+containerPort: '3000'
+command: ["bash", "-c", "bundle exec puma"]
+envVars:
+  RAILS_ENV: production
+awsSecretsService:
+  DATABASE_URL: database_url
+  SECRET_KEY_BASE: secret_key_base
+resources:
+  limits:
+    memory: 1024Mi
+    cpu: 250m
+  requests:
+    memory: 512Mi
+    cpu: 250m
+autoscalingEnabled: true
+autoscalingMinReplicas: 1
+autoscalingMaxReplicas: 10
+preUpgradeHookEnabled: true
+preUpgradeHookCommand: ["bash", "-c", "rails db:prepare"]

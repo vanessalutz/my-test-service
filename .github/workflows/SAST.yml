@@ -1,0 +1,50 @@
+name: SAST
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  veracode-scan:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+
+      - name: Configure bundler to run with veracode
+        run: bundle config set --local with veracode
+
+      - name: Not good enough, also configure bundler to run without everything else
+        run: bundle config set --local without development production test pentest scaling
+
+      - name: Install gemset for Veracode
+        env:
+          BUNDLE_GEMS__CONTRIBSYS__COM: ${{ secrets.BUNDLE_GEMS__CONTRIBSYS__COM }}
+        run: bundle install
+
+      - name: Create source artifact using Veracode's gem
+        run: bundle exec veracode prepare
+
+      - name: Rename source artifact
+        run: mv tmp/veracode-YOUR_REPO_NAME-*.zip tmp/veracode-YOUR_REPO_NAME.zip
+
+      - name: Upload source ZIP as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          path: tmp/veracode-YOUR_REPO_NAME.zip
+
+      - name: Upload source artifact to Veracode
+        uses: veracode/veracode-uploadandscan-action@master
+        with:
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          deleteIncompleteScan: true
+          scantimeout: 10
+          appname: YOUR_REPO_NAME
+          filepath: tmp/veracode-YOUR_REPO_NAME.zip

@@ -1,0 +1,5 @@
+awsRegion: us-east-1
+awsAccountId: 'foobar'
+environment: stage
+clusterName: 'foobar'
+domain: foobar.io

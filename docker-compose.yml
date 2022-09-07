@@ -1,0 +1,23 @@
+services:
+  db:
+    environment:
+      POSTGRES_PASSWORD: YOUR_REPO_NAME_password
+      POSTGRES_USER: YOUR_REPO_NAME_dev
+      POSTGRES_DB: YOUR_REPO_NAME_db
+    image: postgres:14
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+  web:
+    build: .
+    command: >
+      bash -c "bundle exec rake db:prepare &&
+               bundle exec rails server -b 0.0.0.0 -p 3000"
+    depends_on:
+      - db
+    env_file:
+      - ./docker-dev.env
+    ports:
+      - '3000:3000'
+    restart: unless-stopped
+version: '3'

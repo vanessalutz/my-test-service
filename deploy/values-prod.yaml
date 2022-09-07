@@ -1,0 +1,6 @@
+awsRegion: us-east-1
+awsAccountId: 'foobar'
+domain: foobar.com
+environment: prod
+clusterName: 'foobar'
+datadogApmEnabled: true

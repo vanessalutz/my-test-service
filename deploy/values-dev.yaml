@@ -1,0 +1,7 @@
+awsRegion: us-west-1
+awsAccountId: 'foobar'
+environment: dev
+clusterName: 'foobar'
+envVars:
+  DD_TRACE_AGENT_HOSTNAME: datadog-scaling.foobar.dev
+domain: foobar.dev

@@ -1,0 +1,72 @@
+name: Deploy to Dev EKS
+on:
+  workflow_run:
+    workflows:
+      - Continuous Integration
+    types:
+      - completed
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'The docker image tag to deploy'
+        required: true
+        type: string
+concurrency:
+  group: YOUR_REPO_NAME-deploy-dev
+  cancel-in-progress: true
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
+env:
+  AWS_REGION: us-west-1
+  AWS_ROLE: foobar
+  CHART: foobar
+  CHART_VERSION: '0.3.4'
+  KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_foobar }}'
+  NAMESPACE: apps
+  SERVICE_NAME: YOUR_REPO_NAME
+  VALUE_FILES: '["deploy/values-common.yaml","deploy/values-dev.yaml"]'
+jobs:
+  Deploy:
+    if: github.event.inputs || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        # the image tag is computed from the current commit SHA unless it is passed
+        # in via the event input
+      - name: Get image tag
+        env:
+          IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        run: >-
+          echo "::set-output name=image_tag::$(IMAGE_TAG="${IMAGE_TAG:=${{ github.event.workflow_run.head_sha }}}";
+          printf "%.7s" $IMAGE_TAG)"
+        shell: bash
+        id: get_tag
+      - name: Configure AWS Credentials
+        id: aws
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: '${{ env.AWS_ROLE }}'
+          role-session-name: '${{ env.SERVICE_NAME }}'
+          aws-region: '${{ env.AWS_REGION }}'
+      - name: Helm Deploy
+        uses: 'hinge-health/helm@v1.6.19'
+        with:
+          chart: '${{ env.CHART }}'
+          chart-version: '${{ env.CHART_VERSION }}'
+          namespace: '${{ env.NAMESPACE }}'
+          release: '${{ env.SERVICE_NAME }}'
+          repo: 'github://hinge-health/infra-helm-charts'
+          repo-alias: hinge-health
+          repo-password: '${{ secrets.CHARTMUSEUM_PASSWORD }}'
+          repo-username: hinge-charts
+          values: |
+            imageTag: '${{ steps.get_tag.outputs.image_tag }}'
+          value-files: '${{ env.VALUE_FILES }}'
+        env:
+          IMAGE_TAG: '${{ steps.get_tag.outputs.image_tag }}'
+          GITHUB_TOKEN: '${{ secrets.HH_SRE_ROBOT_GITHUB_TOKEN }}'
