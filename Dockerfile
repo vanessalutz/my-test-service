@@ -4,7 +4,7 @@ ARG BUNDLE_RUBYGEMS__PKG__GITHUB__COM
 ARG BUNDLE_GEMS__CONTRIBSYS__COM
 ARG COMMIT_SHA
 
-RUN useradd --create-home -s /bin/bash YOUR_REPO_NAME && \
+RUN useradd --create-home -s /bin/bash my-test-service && \
     apt-get update -qq && \
     apt-get install -y --no-install-recommends build-essential && \
     apt-get install -y jq && \
@@ -26,8 +26,8 @@ RUN set -a && \
 RUN apt-get remove -y gcc gcc-8
 
 COPY . /app/
-RUN chown -R YOUR_REPO_NAME:YOUR_REPO_NAME /app/
-USER YOUR_REPO_NAME
+RUN chown -R my-test-service:my-test-service /app/
+USER my-test-service
 
 FROM development as production
 

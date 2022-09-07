@@ -1,9 +1,9 @@
 services:
   db:
     environment:
-      POSTGRES_PASSWORD: YOUR_REPO_NAME_password
-      POSTGRES_USER: YOUR_REPO_NAME_dev
-      POSTGRES_DB: YOUR_REPO_NAME_db
+      POSTGRES_PASSWORD: my-test-service_password
+      POSTGRES_USER: my-test-service_dev
+      POSTGRES_DB: my-test-service_db
     image: postgres:14
     ports:
       - '5432:5432'

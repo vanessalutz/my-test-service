@@ -1,6 +1,24 @@
-# rails-template
-Test rails template
+# README
 
-Should contain how to configure branch protection for ex: kodiak
-Creator should update docker-dev.env
-Ingress in deploy folders need to be configured if needed.
+This README would normally document whatever steps are necessary to get the
+application up and running.
+
+Things you may want to cover:
+
+* Ruby version
+
+* System dependencies
+
+* Configuration
+
+* Database creation
+
+* Database initialization
+
+* How to run the test suite
+
+* Services (job queues, cache servers, search engines, etc.)
+
+* Deployment instructions
+
+* ...
